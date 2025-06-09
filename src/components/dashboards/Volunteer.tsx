@@ -27,7 +27,7 @@ const Volunteer = () => {
           id,
           profiles(full_name),
           organization_id,
-          organizations(name)
+          organizations(name) 
         `)
         .eq("id", userId)
         .single();
@@ -40,6 +40,7 @@ const Volunteer = () => {
       setVolunteerProfile(volunteerData);
 
       if (volunteerData.organization_id) {
+        
         setOrganization(volunteerData.organizations);
       }
 
@@ -48,7 +49,8 @@ const Volunteer = () => {
         .from("donors")
         .select(`
           id,
-          profiles(full_name, blood_group)
+          blood_group,
+          profiles(full_name)
         `)
         .eq("volunteer_id", userId);
 
