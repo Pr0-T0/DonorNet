@@ -9,6 +9,7 @@ import Organization from './components/dashboards/Organization';
 import ProtectedRoute from './components/ProtectedRoute';
 import DashboardRedirector from './DashBoardRedirector';
 import Unauthorized from './components/unauthorized';
+import Alerts from './components/Alerts';
 
 
 export const router = createBrowserRouter([
@@ -30,5 +31,6 @@ export const router = createBrowserRouter([
 
   { path: '/profile', element: <Profile /> },
 
+  { path: '/alerts', element: <Alerts/> },
   { path: '/unauthorized', element: <Unauthorized /> },
 ]);
