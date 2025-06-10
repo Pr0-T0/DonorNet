@@ -46,14 +46,11 @@ const Header = () => {
 
   return (
     <>
-      {/* Header */}
       <header className="fixed top-0 left-0 w-full bg-white z-50 shadow-sm px-6 md:px-10 py-4 flex items-center justify-between">
-        {/* Logo */}
         <div className="text-2xl font-bold text-gray-800">
           <span className="text-red-500">Donor</span>Net
         </div>
 
-        {/* Emergency Button - Centered */}
         <div className="absolute left-1/2 transform -translate-x-1/2">
           <button
             onClick={() => setShowForm(true)}
@@ -63,7 +60,6 @@ const Header = () => {
           </button>
         </div>
 
-        {/* Navigation */}
         <nav className="hidden md:flex gap-10 text-gray-700 text-sm font-medium">
           <Link to="/dashboard" className="hover:underline">Dashboard</Link>
           <Link to="/alerts" className="hover:underline">Alerts</Link>
@@ -71,7 +67,6 @@ const Header = () => {
         </nav>
       </header>
 
-      {/* Emergency Modal */}
       {showForm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-[999] flex items-center justify-center">
           <div className="bg-white p-6 rounded-xl shadow-lg w-[90%] max-w-md relative">
@@ -84,13 +79,22 @@ const Header = () => {
             <h2 className="text-lg font-bold text-gray-800 mb-4">Emergency Alert</h2>
 
             <div className="space-y-3">
-              <input
-                type="text"
-                placeholder="Blood Type (e.g., A+)"
+              <select
                 value={bloodType}
                 onChange={(e) => setBloodType(e.target.value)}
                 className="w-full border px-4 py-2 rounded-md"
-              />
+              >
+                <option value="">Select Blood Type</option>
+                <option value="A+">A+</option>
+                <option value="A-">A-</option>
+                <option value="B+">B+</option>
+                <option value="B-">B-</option>
+                <option value="AB+">AB+</option>
+                <option value="AB-">AB-</option>
+                <option value="O+">O+</option>
+                <option value="O-">O-</option>
+              </select>
+
               <input
                 type="text"
                 placeholder="Location"
@@ -98,12 +102,14 @@ const Header = () => {
                 onChange={(e) => setLocation(e.target.value)}
                 className="w-full border px-4 py-2 rounded-md"
               />
+
               <textarea
                 placeholder="Message"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 className="w-full border px-4 py-2 rounded-md"
               />
+
               <button
                 onClick={handleSubmit}
                 className="w-full bg-red-500 text-white font-semibold py-2 rounded-md hover:bg-red-600"
