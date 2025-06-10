@@ -1,28 +1,29 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../SupabaseCilent";
-import toast from "react-hot-toast";
 import Header from "./Header";
 
-const Alerts = () => {
+const Alert = () => {
   const [alerts, setAlerts] = useState<any[]>([]);
 
+  const fetchAlerts = async () => {
+    const { data, error } = await supabase.from("alerts").select("*").order("created_at", { ascending: false });
+    if (!error) setAlerts(data);
+  };
+
   useEffect(() => {
-    // Fetch existing alerts initially
-    const fetchAlerts = async () => {
-      const { data } = await supabase.from("alerts").select("*").order("created_at", { ascending: false });
-      setAlerts(data || []);
-    };
     fetchAlerts();
 
-    // Subscribe to realtime INSERTs
     const channel = supabase
-      .channel("realtime-alerts")
+      .channel("alerts-channel")
       .on(
         "postgres_changes",
-        { event: "INSERT", schema: "public", table: "alerts" },
-        (payload) => {
-          toast.error(`🚨 Emergency: ${payload.new.blood_type} needed at ${payload.new.location}`);
-          setAlerts((prev) => [payload.new, ...prev]);
+        {
+          event: "*", // could be 'INSERT', 'UPDATE', or 'DELETE'
+          schema: "public",
+          table: "alerts",
+        },
+        () => {
+          fetchAlerts(); // refetch alerts when any change happens
         }
       )
       .subscribe();
@@ -33,19 +34,24 @@ const Alerts = () => {
   }, []);
 
   return (
-    <><Header /><div className="p-6">
-          <h2 className="text-2xl font-bold py-20 text-center mb-4">Emergency Alerts</h2>
-          <ul className="space-y-3">
-              {alerts.map((alert) => (
-                  <li key={alert.id} className="bg-red-100 p-4 rounded shadow text-red-900">
-                      <strong>{alert.blood_type}</strong> at <em>{alert.location}</em><br />
-                      {alert.message} <br />
-                      <small>{new Date(alert.created_at).toLocaleString()}</small>
-                  </li>
-              ))}
-          </ul>
-      </div></>
+    <div className="p-6">
+    <Header/>
+      <h2 className="text-xl font-bold mb-4">Emergency Alerts</h2>
+      {alerts.length === 0 ? (
+        <p>No alerts found.</p>
+      ) : (
+        <ul className="space-y-4">
+          {alerts.map((alert) => (
+            <li key={alert.id} className="p-4 bg-red-100 rounded-md shadow">
+              <p><strong>Blood Type:</strong> {alert.blood_type}</p>
+              <p><strong>Location:</strong> {alert.location}</p>
+              <p><strong>Message:</strong> {alert.message}</p>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   );
 };
 
-export default Alerts;
+export default Alert;
