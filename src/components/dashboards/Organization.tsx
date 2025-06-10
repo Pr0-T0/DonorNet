@@ -5,43 +5,80 @@ import { supabase } from "../../SupabaseCilent";
 
 const Organization = () => {
   const [orgProfile, setOrgProfile] = useState<any>(null);
+  const [organization, setOrganization] = useState<any>(null);
   const [volunteers, setVolunteers] = useState<any[]>([]);
   const [camps, setCamps] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchOrganizationData = async () => {
-      const { data: { user }, error } = await supabase.auth.getUser();
-      if (error || !user) return;
+      console.log("Starting to fetch organization data...");
+
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) {
+        console.error("Failed to fetch user:", userError);
+        return;
+      }
 
       const userId = user.id;
+      console.log("Authenticated User ID:", userId);
 
-      // Get organization profile (from profiles table)
-      const { data: profile } = await supabase
+      const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("full_name")
         .eq("id", userId)
         .single();
 
-      setOrgProfile({ ...profile, id: userId });
+      if (profileError) {
+        console.error("Failed to fetch profile:", profileError);
+      } else {
+        console.log("Fetched profile:", profile);
+        setOrgProfile({ ...profile, id: userId });
+      }
 
-      // Get volunteers linked to this organization
-      const { data: orgVolunteers } = await supabase
+      const { data: orgData, error: orgError } = await supabase
+        .from("organizations")
+        .select("id")
+        .eq("id", userId)
+        .single();
+
+      if (orgError || !orgData) {
+        console.warn("No organization record found for ID:", userId);
+        setLoading(false);
+        return;
+      }
+
+      console.log("Organization found:", orgData);
+      setOrganization(orgData);
+
+      const { data: orgVolunteers, error: volError } = await supabase
         .from("volunteers")
-        .select("id, profiles(full_name)")
-        .eq("organization_id", userId);
+        .select("id, profile:profiles!volunteers_id_fkey(full_name)")
+        .eq("organization_id", orgData.id);
+
+      if (volError) {
+        console.error("Error fetching volunteers:", volError);
+      } else {
+        console.log(`Found ${orgVolunteers?.length ?? 0} volunteer(s):`, orgVolunteers);
+      }
 
       setVolunteers(orgVolunteers || []);
 
-      // Get donation camps by this organization
-      const { data: orgCamps } = await supabase
+      const { data: orgCamps, error: campsError } = await supabase
         .from("donation_camps")
         .select("name, location, date")
-        .eq("organization_id", userId)
+        .eq("organization_id", orgData.id)
         .order("date", { ascending: true });
+
+      if (campsError) {
+        console.error("Error fetching camps:", campsError);
+      } else {
+        console.log(`Found ${orgCamps?.length ?? 0} camp(s):`, orgCamps);
+      }
 
       setCamps(orgCamps || []);
       setLoading(false);
+      console.log("Finished fetching all data.");
     };
 
     fetchOrganizationData();
@@ -56,10 +93,10 @@ const Organization = () => {
         <h1 className="text-3xl font-bold text-gray-800">
           Welcome, <span className="text-red-600">{orgProfile?.full_name}</span>
         </h1>
-        <p className="text-sm text-gray-500 select-all">Organization ID: {orgProfile?.id}</p>
+        <p className="text-sm text-gray-500 select-all">Organization ID: {organization?.id}</p>
 
-        {/* Organization Info */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+          {/* Volunteers */}
           <div className="bg-white p-6 rounded-xl shadow">
             <div className="flex items-center gap-3 mb-4">
               <Building2 className="text-blue-600" />
@@ -70,12 +107,13 @@ const Organization = () => {
                 <li>No volunteers assigned yet.</li>
               ) : (
                 volunteers.map((vol) => (
-                  <li key={vol.id}>{vol.profiles.full_name}</li>
+                  <li key={vol.id}>{vol.profile?.full_name || "Unnamed Volunteer"}</li>
                 ))
               )}
             </ul>
           </div>
 
+          {/* Camps */}
           <div className="bg-white p-6 rounded-xl shadow">
             <div className="flex items-center gap-3 mb-4">
               <Calendar className="text-green-600" />
@@ -88,12 +126,78 @@ const Organization = () => {
                 camps.map((camp, i) => (
                   <li key={i} className="border-b py-2">
                     <div className="font-semibold">{camp.name}</div>
-                    <div className="text-sm text-gray-500">{camp.location} — {camp.date}</div>
+                    <div className="text-sm text-gray-500">
+                      {camp.location} — {camp.date}
+                    </div>
                   </li>
                 ))
               )}
             </ul>
           </div>
+        </div>
+
+        {/* New Camp Form */}
+        <div className="bg-white p-6 rounded-xl shadow mt-10">
+          <h2 className="text-xl font-bold mb-4 text-gray-700">Host a New Donation Camp</h2>
+          <form
+            onSubmit={async (e) => {
+              e.preventDefault();
+              const form = e.target as HTMLFormElement;
+              const name = (form.elements.namedItem("name") as HTMLInputElement).value.trim();
+              const location = (form.elements.namedItem("location") as HTMLInputElement).value.trim();
+              const date = (form.elements.namedItem("date") as HTMLInputElement).value;
+
+              if (!name || !location || !date) {
+                alert("Please fill in all fields.");
+                return;
+              }
+
+              const { data, error } = await supabase.from("donation_camps").insert([
+                {
+                  name,
+                  location,
+                  date,
+                  organization_id: organization.id,
+                },
+              ]);
+
+              if (error) {
+                console.error("Error creating camp:", error);
+                alert("Failed to create camp.");
+              } else {
+                console.log("New camp created:", data);
+                setCamps((prev) => [...prev, { name, location, date }]);
+                form.reset();
+              }
+            }}
+            className="space-y-4"
+          >
+            <div className="grid md:grid-cols-3 gap-4">
+              <input
+                type="text"
+                name="name"
+                placeholder="Camp Name"
+                className="border px-3 py-2 rounded w-full"
+              />
+              <input
+                type="text"
+                name="location"
+                placeholder="Location"
+                className="border px-3 py-2 rounded w-full"
+              />
+              <input
+                type="date"
+                name="date"
+                className="border px-3 py-2 rounded w-full"
+              />
+            </div>
+            <button
+              type="submit"
+              className="bg-red-600 hover:bg-red-700 text-white font-semibold px-5 py-2 rounded"
+            >
+              Create Camp
+            </button>
+          </form>
         </div>
       </div>
     </div>
