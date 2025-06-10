@@ -146,65 +146,68 @@ const Organization = () => {
           <p className="text-sm text-gray-500">Organization ID: {organization?.id}</p>
         </div>
 
-        {/* Volunteers Section */}
-        <section className="bg-white p-6 rounded-2xl shadow-sm border">
-          <div className="flex items-center gap-3 mb-4">
-            <Building2 className="text-blue-600" />
-            <h2 className="text-2xl font-semibold text-gray-700">Volunteers</h2>
-          </div>
-          {volunteers.length === 0 ? (
-            <p className="text-gray-500">No volunteers assigned yet.</p>
-          ) : (
-            <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 text-gray-700">
-              {volunteers.map((vol) => (
-                <li key={vol.id} className="bg-gray-100 px-3 py-2 rounded-lg text-sm">
-                  {vol.profile?.full_name || "Unnamed Volunteer"}
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
+        <div className="flex flex-col md:flex-row gap-6">
+          {/* Volunteers Section */}
+          <section className="bg-white p-6 rounded-2xl shadow-sm border w-full md:w-1/2 h-[300px] overflow-y-auto">
+            <div className="flex items-center gap-3 mb-4">
+              <Building2 className="text-blue-600" />
+              <h2 className="text-2xl font-semibold text-gray-700">Volunteers</h2>
+            </div>
+            {volunteers.length === 0 ? (
+              <p className="text-gray-500">No volunteers assigned yet.</p>
+            ) : (
+              <ul className="grid grid-cols-2 gap-2 text-gray-700">
+                {volunteers.map((vol) => (
+                  <li key={vol.id} className="bg-gray-100 px-3 py-2 rounded-lg text-sm">
+                    {vol.profile?.full_name || "Unnamed Volunteer"}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
 
-        {/* Upcoming Camps Section */}
-        <section className="bg-white p-6 rounded-2xl shadow-sm border">
-          <div className="flex items-center gap-3 mb-4">
-            <Calendar className="text-green-600" />
-            <h2 className="text-2xl font-semibold text-gray-700">Upcoming Camps</h2>
-          </div>
-          {camps.length === 0 ? (
-            <p className="text-gray-500">No upcoming camps.</p>
-          ) : (
-            <ul className="space-y-4">
-              {camps.map((camp) => (
-                <li
-                  key={camp.id}
-                  className="border border-gray-200 rounded-lg p-4 flex justify-between items-start hover:shadow-sm"
-                >
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-800">{camp.name}</h3>
-                    <p className="text-sm text-gray-500">
-                      {camp.location} — {new Date(camp.date).toLocaleDateString()}
-                    </p>
-                  </div>
-                  <div className="flex gap-3 text-sm mt-1">
-                    <button
-                      onClick={() => handleEditClick(camp)}
-                      className="text-blue-600 hover:underline"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDeleteCamp(camp.id)}
-                      className="text-red-600 hover:underline"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
+          {/* Upcoming Camps Section */}
+          <section className="bg-white p-6 rounded-2xl shadow-sm border w-full md:w-1/2 h-[300px] overflow-y-auto ">
+            <div className="flex items-center gap-3 mb-4">
+              <Calendar className="text-green-600" />
+              <h2 className="text-2xl font-semibold text-gray-700">Upcoming Camps</h2>
+            </div>
+            {camps.length === 0 ? (
+              <p className="text-gray-500">No upcoming camps.</p>
+            ) : (
+              <ul className="space-y-4">
+                {camps.map((camp) => (
+                  <li
+                    key={camp.id}
+                    className="border border-gray-200 rounded-lg p-4 flex justify-between items-start hover:shadow-sm"
+                  >
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-800">{camp.name}</h3>
+                      <p className="text-sm text-gray-500">
+                        {camp.location} — {new Date(camp.date).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <div className="flex gap-3 text-sm mt-1">
+                      <button
+                        onClick={() => handleEditClick(camp)}
+                        className="text-blue-600 hover:underline"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDeleteCamp(camp.id)}
+                        className="text-red-600 hover:underline"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        </div>
+
 
         {/* Create Camp Form */}
         <section className="bg-white p-6 rounded-2xl shadow-sm border">
