@@ -136,7 +136,7 @@ const Organization = () => {
   if (loading) return <div className="p-6 text-center">Loading...</div>;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-200">
       <Header />
       <div className="max-w-6xl mx-auto px-6 py-16 space-y-12">
         <div className="space-y-2">
@@ -148,7 +148,7 @@ const Organization = () => {
 
         <div className="flex flex-col md:flex-row gap-6">
           {/* Volunteers Section */}
-          <section className="bg-white p-6 rounded-2xl shadow-sm border w-full md:w-1/2 h-[300px] overflow-y-auto">
+          <section className="bg-white p-6 rounded-2xl shadow-sm  w-full md:w-1/2 h-[300px] overflow-y-auto">
             <div className="flex items-center gap-3 mb-4">
               <Building2 className="text-blue-600" />
               <h2 className="text-2xl font-semibold text-gray-700">Volunteers</h2>
@@ -167,7 +167,7 @@ const Organization = () => {
           </section>
 
           {/* Upcoming Camps Section */}
-          <section className="bg-white p-6 rounded-2xl shadow-sm border w-full md:w-1/2 h-[300px] overflow-y-auto ">
+          <section className="bg-white p-6 rounded-2xl shadow-sm  w-full md:w-1/2 h-[300px] overflow-y-auto ">
             <div className="flex items-center gap-3 mb-4">
               <Calendar className="text-green-600" />
               <h2 className="text-2xl font-semibold text-gray-700">Upcoming Camps</h2>
@@ -210,7 +210,7 @@ const Organization = () => {
 
 
         {/* Create Camp Form */}
-        <section className="bg-white p-6 rounded-2xl shadow-sm border">
+        <section className="bg-white p-6 rounded-2xl shadow-sm ">
           <h2 className="text-2xl font-bold mb-4 text-gray-700">Host a New Donation Camp</h2>
           <form onSubmit={handleCreateCamp} className="space-y-4">
             <div className="grid md:grid-cols-3 gap-4">
